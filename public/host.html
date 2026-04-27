@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quizz Party - Hôte</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- ═══ STEP 1: Create Quiz ═══ -->
+  <div id="step-create" class="container fade-in">
+    <h1 class="logo">🎤 Créer ton Quiz</h1>
+
+    <div class="form-section">
+      <label>Titre du quiz</label>
+      <input type="text" id="quiz-title" placeholder="Ex: Culture Générale" class="input-full">
+
+      <label>Thématique</label>
+      <select id="quiz-theme-select" class="input-full">
+        <option value="general">🧠 Culture Générale</option>
+        <option value="science">🔬 Sciences</option>
+        <option value="sport">⚽ Sport</option>
+        <option value="cinema">🎬 Cinéma</option>
+        <option value="music">🎵 Musique</option>
+        <option value="geo">🌍 Géographie</option>
+        <option value="history">📜 Histoire</option>
+        <option value="custom">✏️ Personnalisé</option>
+      </select>
+
+      <label>Thème visuel</label>
+      <div class="theme-picker" id="theme-picker">
+        <button class="theme-btn active" data-theme="default" style="background: linear-gradient(135deg, #6c5ce7, #a29bfe)"></button>
+        <button class="theme-btn" data-theme="ocean" style="background: linear-gradient(135deg, #0984e3, #74b9ff)"></button>
+        <button class="theme-btn" data-theme="sunset" style="background: linear-gradient(135deg, #e17055, #fdcb6e)"></button>
+        <button class="theme-btn" data-theme="forest" style="background: linear-gradient(135deg, #00b894, #55efc4)"></button>
+        <button class="theme-btn" data-theme="neon" style="background: linear-gradient(135deg, #fd79a8, #e84393)"></button>
+        <button class="theme-btn" data-theme="dark" style="background: linear-gradient(135deg, #2d3436, #636e72)"></button>
+      </div>
+
+      <label>Temps par question (secondes)</label>
+      <input type="number" id="default-time" value="20" min="5" max="120" class="input-small">
+    </div>
+
+    <!-- ── AI Generation ── -->
+    <div class="ai-section">
+      <h2>🤖 Générer avec l'IA</h2>
+      <div class="ai-key-row" id="ai-key-row">
+        <input type="password" id="ai-key" placeholder="Clé API OpenRouter (sk-or-...)" class="input-full">
+        <button id="btn-save-key" class="btn btn-secondary">Enregistrer</button>
+      </div>
+      <p class="ai-key-status" id="ai-key-status"></p>
+      <div class="ai-gen-row">
+        <label>Thématique</label>
+        <div class="theme-input-group">
+          <select id="ai-theme-preset" class="input-full">
+            <option value="">-- Choisir une thématique --</option>
+            <option value="Culture générale">🧠 Culture générale</option>
+            <option value="Sciences et nature">🔬 Sciences et nature</option>
+            <option value="Histoire">📜 Histoire</option>
+            <option value="Géographie et capitales du monde">🌍 Géographie</option>
+            <option value="Cinéma et séries TV">🎬 Cinéma et séries</option>
+            <option value="Musique et artistes">🎵 Musique</option>
+            <option value="Sport">⚽ Sport</option>
+            <option value="Informatique et technologie">💻 Informatique</option>
+            <option value="Gastronomie et cuisine du monde">🍳 Gastronomie</option>
+            <option value="Littérature et auteurs">📚 Littérature</option>
+            <option value="Art et peinture">🎨 Art</option>
+            <option value="Animaux et faune sauvage">🐾 Animaux</option>
+            <option value="Espace et astronomie">🚀 Espace</option>
+            <option value="Mythologie et légendes">⚡ Mythologie</option>
+            <option value="Jeux vidéo">🎮 Jeux vidéo</option>
+            <option value="custom">✏️ Thème personnalisé...</option>
+          </select>
+          <input type="text" id="ai-theme" placeholder="Tape ton thème personnalisé ici..." class="input-full" style="display:none">
+        </div>
+        <div class="ai-options-row">
+          <div>
+            <label>Modèle IA</label>
+            <select id="ai-model" class="input-full">
+              <option value="google/gemma-4-31b-it">Gemma 4 31B (rapide)</option>
+              <option value="openai/gpt-oss-120b">GPT OSS 120B (puissant)</option>
+            </select>
+          </div>
+        </div>
+        <div class="ai-options-row">
+          <div>
+            <label>Nombre</label>
+            <select id="ai-count" class="input-small">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+            </select>
+          </div>
+          <div>
+            <label>Difficulté</label>
+            <select id="ai-difficulty" class="input-small">
+              <option value="facile">Facile</option>
+              <option value="moyen" selected>Moyen</option>
+              <option value="difficile">Difficile</option>
+              <option value="expert">Expert</option>
+            </select>
+          </div>
+          <div>
+            <label>Langue</label>
+            <select id="ai-language" class="input-small">
+              <option value="francais" selected>Français</option>
+              <option value="english">English</option>
+              <option value="arabe">العربية</option>
+              <option value="espagnol">Español</option>
+              <option value="portugais">Português</option>
+              <option value="russe">Русский</option>
+            </select>
+          </div>
+        </div>
+        <button id="btn-ai-generate" class="btn btn-ai btn-large">
+          <span class="ai-btn-text">✨ Générer les questions</span>
+          <span class="ai-btn-loading" style="display:none">
+            <span class="spinner"></span> Génération en cours...
+          </span>
+        </button>
+      </div>
+      <p class="ai-error" id="ai-error"></p>
+    </div>
+
+    <div class="separator">
+      <span>ou crée tes questions manuellement</span>
+    </div>
+
+    <div class="questions-section">
+      <h2>Questions (<span id="q-total-count">0</span>)</h2>
+      <div id="questions-list"></div>
+      <button id="btn-add-question" class="btn btn-secondary">+ Ajouter une question</button>
+    </div>
+
+    <button id="btn-create-room" class="btn btn-primary btn-large">🚀 Créer la partie</button>
+  </div>
+
+  <!-- ═══ STEP 2: Lobby ═══ -->
+  <div id="step-lobby" class="container fade-in" style="display:none">
+    <h1 class="logo">🎯 Quizz Party</h1>
+    <div class="lobby-info">
+      <div class="pin-display">
+        <span class="pin-label">CODE PIN</span>
+        <span class="pin-value" id="lobby-pin"></span>
+      </div>
+      <div class="qr-display" id="lobby-qr"></div>
+      <p class="lobby-url" id="lobby-url"></p>
+    </div>
+    <div class="players-list">
+      <h2>Joueurs connectés (<span id="player-count">0</span>)</h2>
+      <div id="players-grid" class="players-grid"></div>
+    </div>
+    <button id="btn-start-game" class="btn btn-primary btn-large" disabled>▶️ Lancer la partie</button>
+  </div>
+
+  <!-- ═══ STEP 3: Game (Host view) ═══ -->
+  <div id="step-game" class="container fade-in" style="display:none">
+    <div class="game-header">
+      <span id="game-q-counter" class="q-counter"></span>
+      <div class="timer-ring" id="timer-ring">
+        <svg viewBox="0 0 100 100">
+          <circle class="timer-bg" cx="50" cy="50" r="45"/>
+          <circle class="timer-fg" cx="50" cy="50" r="45" id="timer-circle"/>
+        </svg>
+        <span class="timer-text" id="timer-text">20</span>
+      </div>
+      <span id="game-answer-count" class="answer-count">0 / 0</span>
+    </div>
+    <div class="question-display">
+      <h2 id="game-question"></h2>
+      <div id="game-options" class="options-grid host-options"></div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 4: Round Results ═══ -->
+  <div id="step-results" class="container fade-in" style="display:none">
+    <h2 class="results-title" id="results-title">🏆 Classement</h2>
+    <div class="correct-answer" id="correct-answer"></div>
+    <div id="leaderboard" class="leaderboard"></div>
+    <button id="btn-next-q" class="btn btn-primary btn-large">Question suivante →</button>
+  </div>
+
+  <!-- ═══ STEP 5: Final ═══ -->
+  <div id="step-final" class="container fade-in" style="display:none">
+    <h1 class="final-title">🎉 Partie terminée !</h1>
+    <div id="final-podium" class="podium"></div>
+    <div id="final-leaderboard" class="leaderboard"></div>
+    <a href="/" class="btn btn-primary btn-large">🏠 Retour à l'accueil</a>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/sounds.js"></script>
+  <script src="/js/host.js"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quizz Party - Jouer</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- ═══ Join Screen ═══ -->
+  <div id="step-join" class="container fade-in">
+    <h1 class="logo">🎮 Rejoindre</h1>
+    <div class="join-form">
+      <label>Code PIN</label>
+      <input type="text" id="join-pin" placeholder="1234" maxlength="4" class="input-pin" inputmode="numeric">
+      <label>Ton pseudo</label>
+      <input type="text" id="join-name" placeholder="Ton pseudo" maxlength="20" class="input-full">
+      <p class="error-msg" id="join-error"></p>
+      <button id="btn-join" class="btn btn-primary btn-large">Rejoindre 🚀</button>
+    </div>
+    <a href="/" class="back-link">← Retour</a>
+  </div>
+
+  <!-- ═══ Waiting in Lobby ═══ -->
+  <div id="step-waiting" class="container fade-in" style="display:none">
+    <div class="waiting-screen">
+      <h1 id="waiting-quiz-title"></h1>
+      <div class="waiting-animation">
+        <div class="bounce-dot"></div>
+        <div class="bounce-dot"></div>
+        <div class="bounce-dot"></div>
+      </div>
+      <p class="waiting-text">En attente du lancement par l'hôte...</p>
+      <p class="player-name-badge" id="waiting-name"></p>
+    </div>
+  </div>
+
+  <!-- ═══ Playing ═══ -->
+  <div id="step-play" class="container fade-in" style="display:none">
+    <div class="play-header">
+      <span id="play-q-counter" class="q-counter"></span>
+      <span id="play-score" class="score-badge">0 pts</span>
+    </div>
+    <h2 id="play-question" class="play-question"></h2>
+    <div id="play-options" class="options-grid player-options"></div>
+    <div class="timer-bar-container">
+      <div class="timer-bar" id="play-timer-bar"></div>
+    </div>
+  </div>
+
+  <!-- ═══ Answer Feedback ═══ -->
+  <div id="step-feedback" class="container fade-in" style="display:none">
+    <div class="feedback-screen" id="feedback-screen">
+      <span class="feedback-icon" id="feedback-icon"></span>
+      <h2 id="feedback-text"></h2>
+      <p id="feedback-score"></p>
+      <p id="feedback-streak"></p>
+    </div>
+  </div>
+
+  <!-- ═══ Round Results (player) ═══ -->
+  <div id="step-player-results" class="container fade-in" style="display:none">
+    <h2>🏆 Classement</h2>
+    <div class="correct-answer" id="player-correct-answer"></div>
+    <div id="player-leaderboard" class="leaderboard"></div>
+    <p class="waiting-text">Prochaine question bientôt...</p>
+  </div>
+
+  <!-- ═══ Final ═══ -->
+  <div id="step-player-final" class="container fade-in" style="display:none">
+    <h1 class="final-title">🎉 Fin de partie !</h1>
+    <div id="player-final-rank" class="final-rank"></div>
+    <div id="player-final-leaderboard" class="leaderboard"></div>
+    <a href="/" class="btn btn-primary btn-large">🏠 Retour</a>
+  </div>
+
+  <!-- ═══ Disconnected ═══ -->
+  <div id="step-disconnected" class="container fade-in" style="display:none">
+    <h1>😵 Déconnecté</h1>
+    <p id="disconnect-reason"></p>
+    <a href="/" class="btn btn-primary">Retour à l'accueil</a>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/sounds.js"></script>
+  <script src="/js/player.js"></script>
+</body>
+</html>
