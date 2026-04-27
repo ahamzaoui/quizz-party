@@ -4,6 +4,7 @@ var questionCount = 0;
 var timerInterval = null;
 var stopTension = null;
 var hostSeeAnswer = true;
+var userApiKey = '';
 
 var $ = function(sel) { return document.querySelector(sel); };
 var $$ = function(sel) { return document.querySelectorAll(sel); };
@@ -29,21 +30,14 @@ $$('.theme-btn').forEach(function(btn) {
   } catch(e) {}
 })();
 
-$('#btn-save-key').addEventListener('click', async function() {
+$('#btn-save-key').addEventListener('click', function() {
   var key = $('#ai-key').value.trim();
   if (!key) return;
-  try {
-    var res = await fetch('/api/set-key', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: key }) });
-    if (res.ok) {
-      $('#ai-key-status').textContent = 'Cle enregistree';
-      $('#ai-key-status').className = 'ai-key-status';
-      $('#ai-key').value = '';
-      $('#ai-key-row').style.display = 'none';
-    }
-  } catch(e) {
-    $('#ai-key-status').textContent = 'Erreur';
-    $('#ai-key-status').className = 'ai-key-status error';
-  }
+  userApiKey = key;
+  $('#ai-key-status').textContent = 'Cle enregistree pour cette session';
+  $('#ai-key-status').className = 'ai-key-status';
+  $('#ai-key').value = '';
+  $('#ai-key-row').style.display = 'none';
 });
 
 $('#ai-theme-preset').addEventListener('change', function() {
@@ -65,7 +59,7 @@ $('#btn-ai-generate').addEventListener('click', async function() {
   try {
     var res = await fetch('/api/generate-questions', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ theme: theme, count: parseInt($('#ai-count').value), difficulty: $('#ai-difficulty').value, model: $('#ai-model').value, language: $('#ai-language').value })
+      body: JSON.stringify({ theme: theme, count: parseInt($('#ai-count').value), difficulty: $('#ai-difficulty').value, model: $('#ai-model').value, language: $('#ai-language').value, userKey: userApiKey || undefined })
     });
     var data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Erreur serveur');

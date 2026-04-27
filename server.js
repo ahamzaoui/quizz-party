@@ -3,19 +3,49 @@ const http = require('http');
 const { Server } = require('socket.io');
 const QRCode = require('qrcode');
 const os = require('os');
+const crypto = require('crypto');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
 app.use(express.static('public'));
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
 
 const stats = require('./stats');
 let apiKey = process.env.OPENROUTER_API_KEY || '';
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 const rooms = new Map();
+
+// Crypto-random admin session tokens (CRITICAL fix #2)
+const adminTokens = new Set();
+
+// Simple rate limiter (HIGH fix #2)
+const rateLimits = new Map();
+function rateLimit(key, maxPerMinute) {
+  var now = Date.now();
+  var entry = rateLimits.get(key);
+  if (!entry || now - entry.start > 60000) {
+    rateLimits.set(key, { start: now, count: 1 });
+    return false;
+  }
+  entry.count++;
+  return entry.count > maxPerMinute;
+}
+
+function requireAdmin(req, res) {
+  var token = (req.headers.authorization || '').replace('Bearer ', '');
+  if (!token || !adminTokens.has(token)) {
+    res.status(401).json({ error: 'Non autorise' });
+    return false;
+  }
+  return true;
+}
+
+if (ADMIN_PASSWORD === 'admin123') {
+  console.warn('⚠  ATTENTION: Mot de passe admin par defaut! Definissez ADMIN_PASSWORD en variable d\'environnement.');
+}
 
 function generatePIN() {
   let pin;
@@ -54,6 +84,7 @@ app.get('/api/ip', (req, res) => {
 });
 
 app.post('/api/set-key', (req, res) => {
+  if (!requireAdmin(req, res)) return;
   if (!req.body.key) return res.status(400).json({ error: 'Cle manquante' });
   apiKey = req.body.key;
   res.json({ ok: true });
@@ -65,24 +96,27 @@ app.get('/api/has-key', (req, res) => {
 
 // Track visits
 app.get('/api/track-visit', (req, res) => {
+  var ip = req.ip || 'unknown';
+  if (rateLimit('visit:' + ip, 30)) return res.status(429).json({ error: 'Rate limit' });
   stats.trackVisit();
   res.json({ ok: true });
 });
 
 // Admin stats API
 app.post('/api/admin/login', (req, res) => {
+  var ip = req.ip || 'unknown';
+  if (rateLimit('login:' + ip, 5)) return res.status(429).json({ error: 'Trop de tentatives. Reessayez dans 1 minute.' });
   if (req.body.password === ADMIN_PASSWORD) {
-    res.json({ ok: true, token: Buffer.from(ADMIN_PASSWORD).toString('base64') });
+    var t = crypto.randomUUID();
+    adminTokens.add(t);
+    res.json({ ok: true, token: t });
   } else {
     res.status(401).json({ error: 'Mot de passe incorrect' });
   }
 });
 
 app.get('/api/admin/stats', (req, res) => {
-  var auth = req.headers.authorization;
-  if (!auth || Buffer.from(auth.replace('Bearer ', ''), 'base64').toString() !== ADMIN_PASSWORD) {
-    return res.status(401).json({ error: 'Non autorise' });
-  }
+  if (!requireAdmin(req, res)) return;
   var s = stats.getStats();
   s.activeRooms = rooms.size;
   var activePlayers = 0;
@@ -92,9 +126,12 @@ app.get('/api/admin/stats', (req, res) => {
 });
 
 app.post('/api/generate-questions', async (req, res) => {
-  const { theme, count = 10, difficulty = 'moyen', model = 'google/gemma-4-31b-it', language = 'francais' } = req.body;
+  var ip = req.ip || 'unknown';
+  if (rateLimit('gen:' + ip, 10)) return res.status(429).json({ error: 'Trop de requetes. Reessayez dans 1 minute.' });
+  const { theme, count = 10, difficulty = 'moyen', model = 'google/gemma-4-31b-it', language = 'francais', userKey } = req.body;
   if (!theme) return res.status(400).json({ error: 'Theme manquant' });
-  if (!apiKey) return res.status(400).json({ error: 'Cle API non configuree.' });
+  var effectiveKey = userKey || apiKey;
+  if (!effectiveKey) return res.status(400).json({ error: 'Cle API non configuree.' });
 
   try {
     const prompt = [
@@ -111,7 +148,7 @@ app.post('/api/generate-questions', async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + apiKey,
+        'Authorization': 'Bearer ' + effectiveKey,
         'HTTP-Referer': 'http://localhost:3000',
         'X-Title': 'Quizz Party'
       },

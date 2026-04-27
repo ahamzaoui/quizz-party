@@ -1,39 +1,42 @@
 {
-  "totalVisits": 5,
-  "totalGamesCreated": 2,
-  "totalGamesCompleted": 2,
-  "totalPlayersJoined": 2,
-  "totalQuestionsGenerated": 30,
-  "totalAIGenerations": 3,
+  "totalVisits": 10,
+  "totalGamesCreated": 3,
+  "totalGamesCompleted": 3,
+  "totalPlayersJoined": 3,
+  "totalQuestionsGenerated": 40,
+  "totalAIGenerations": 4,
   "totalKicks": 0,
   "themes": {
     "Sciences et nature": 1,
-    "Afrique du nord": 1
+    "Afrique du nord": 1,
+    "Gabes, Tunisie": 1
   },
   "aiThemes": {
     "Sciences et nature": 1,
     "Gabes en Tunisie": 1,
-    "Afrique du nord": 1
+    "Afrique du nord": 1,
+    "Gabes, Tunisie": 1
   },
   "models": {
     "google/gemma-4-31b-it": 2,
-    "openai/gpt-oss-120b": 1
+    "openai/gpt-oss-120b": 2
   },
   "languages": {
-    "francais": 3
+    "francais": 4
   },
   "difficulties": {
-    "moyen": 3
+    "moyen": 4
   },
   "dailyVisits": {
-    "2026-04-27": 5
+    "2026-04-27": 10
   },
   "dailyGames": {
-    "2026-04-27": 2
+    "2026-04-27": 3
   },
   "peakPlayers": 1,
   "averagePlayersPerGame": 1,
   "gamesPlayerCount": [
+    1,
     1,
     1
   ],
@@ -44,6 +47,13 @@
       "questions": 10,
       "theme": "default",
       "createdAt": "2026-04-27T13:39:42.894Z"
+    },
+    {
+      "pin": "7430",
+      "title": "Gabes, Tunisie",
+      "questions": 10,
+      "theme": "default",
+      "createdAt": "2026-04-27T22:34:14.066Z"
     }
   ],
   "gameHistory": [
@@ -52,6 +62,13 @@
       "players": 1,
       "startedAt": "2026-04-27T13:39:57.935Z",
       "endedAt": "2026-04-27T13:40:34.727Z",
+      "status": "terminee"
+    },
+    {
+      "pin": "7430",
+      "players": 1,
+      "startedAt": "2026-04-27T22:34:33.435Z",
+      "endedAt": "2026-04-27T22:40:46.086Z",
       "status": "terminee"
     }
   ]

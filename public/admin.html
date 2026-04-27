@@ -142,13 +142,13 @@
       // Models, languages, difficulties
       html += '<div class="section"><h2>⚙ Repartition</h2>';
       html += '<h3 style="margin:0.5rem 0">Modeles IA</h3><div class="tag-grid">';
-      for (var m in s.models) html += '<span class="tag">' + m + ' (' + s.models[m] + ')</span>';
+      for (var m in s.models) html += '<span class="tag">' + esc(m) + ' (' + s.models[m] + ')</span>';
       html += '</div>';
       html += '<h3 style="margin:0.8rem 0 0.5rem">Langues</h3><div class="tag-grid">';
-      for (var l in s.languages) html += '<span class="tag">' + l + ' (' + s.languages[l] + ')</span>';
+      for (var l in s.languages) html += '<span class="tag">' + esc(l) + ' (' + s.languages[l] + ')</span>';
       html += '</div>';
       html += '<h3 style="margin:0.8rem 0 0.5rem">Difficultes</h3><div class="tag-grid">';
-      for (var d in s.difficulties) html += '<span class="tag">' + d + ' (' + s.difficulties[d] + ')</span>';
+      for (var d in s.difficulties) html += '<span class="tag">' + esc(d) + ' (' + s.difficulties[d] + ')</span>';
       html += '</div></div>';
 
       // Quiz history table
