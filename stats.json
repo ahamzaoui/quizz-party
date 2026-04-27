@@ -1,0 +1,36 @@
+{
+  "totalVisits": 3,
+  "totalGamesCreated": 1,
+  "totalGamesCompleted": 1,
+  "totalPlayersJoined": 1,
+  "totalQuestionsGenerated": 20,
+  "totalAIGenerations": 2,
+  "totalKicks": 0,
+  "themes": {
+    "Sciences et nature": 1
+  },
+  "aiThemes": {
+    "Sciences et nature": 1,
+    "Gabes en Tunisie": 1
+  },
+  "models": {
+    "google/gemma-4-31b-it": 2
+  },
+  "languages": {
+    "francais": 2
+  },
+  "difficulties": {
+    "moyen": 2
+  },
+  "dailyVisits": {
+    "2026-04-27": 3
+  },
+  "dailyGames": {
+    "2026-04-27": 1
+  },
+  "peakPlayers": 1,
+  "averagePlayersPerGame": 1,
+  "gamesPlayerCount": [
+    1
+  ]
+}

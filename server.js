@@ -11,8 +11,10 @@ const io = new Server(server);
 app.use(express.static('public'));
 app.use(express.json());
 
-let apiKey = process.env.OPENROUTER_API_KEY || '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';
+const stats = require('./stats');
+let apiKey = process.env.OPENROUTER_API_KEY || '';
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 const rooms = new Map();
 
 function generatePIN() {
@@ -61,6 +63,34 @@ app.get('/api/has-key', (req, res) => {
   res.json({ hasKey: !!apiKey });
 });
 
+// Track visits
+app.get('/api/track-visit', (req, res) => {
+  stats.trackVisit();
+  res.json({ ok: true });
+});
+
+// Admin stats API
+app.post('/api/admin/login', (req, res) => {
+  if (req.body.password === ADMIN_PASSWORD) {
+    res.json({ ok: true, token: Buffer.from(ADMIN_PASSWORD).toString('base64') });
+  } else {
+    res.status(401).json({ error: 'Mot de passe incorrect' });
+  }
+});
+
+app.get('/api/admin/stats', (req, res) => {
+  var auth = req.headers.authorization;
+  if (!auth || Buffer.from(auth.replace('Bearer ', ''), 'base64').toString() !== ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'Non autorise' });
+  }
+  var s = stats.getStats();
+  s.activeRooms = rooms.size;
+  var activePlayers = 0;
+  rooms.forEach(function(r) { activePlayers += r.players.size; });
+  s.activePlayers = activePlayers;
+  res.json(s);
+});
+
 app.post('/api/generate-questions', async (req, res) => {
   const { theme, count = 10, difficulty = 'moyen', model = 'google/gemma-4-31b-it', language = 'francais' } = req.body;
   if (!theme) return res.status(400).json({ error: 'Theme manquant' });
@@ -101,7 +131,17 @@ app.post('/api/generate-questions', async (req, res) => {
     const text = data.choices[0].message.content.trim();
     const jsonMatch = text.match(/\[[\s\S]*\]/);
     if (!jsonMatch) throw new Error('Reponse IA invalide');
-    const questions = JSON.parse(jsonMatch[0]);
+    var jsonStr = jsonMatch[0];
+    jsonStr = jsonStr.replace(/,\s*]/g, ']').replace(/,\s*}/g, '}');
+    jsonStr = jsonStr.replace(/[\x00-\x1F\x7F]/g, function(c) { return c === '\n' || c === '\r' || c === '\t' ? c : ''; });
+    var questions;
+    try { questions = JSON.parse(jsonStr); } catch(e) {
+      var lastBracket = jsonStr.lastIndexOf('}');
+      if (lastBracket > 0) {
+        jsonStr = jsonStr.substring(0, lastBracket + 1) + ']';
+        questions = JSON.parse(jsonStr);
+      } else { throw e; }
+    }
     if (!Array.isArray(questions) || questions.length === 0) throw new Error('Aucune question');
     for (const q of questions) {
       if (!q.question || !Array.isArray(q.options) || q.options.length !== 4 ||
@@ -109,6 +149,7 @@ app.post('/api/generate-questions', async (req, res) => {
         throw new Error('Format invalide');
       }
     }
+    stats.trackAIGeneration(theme, questions.length, model, language, difficulty);
     res.json({ questions });
   } catch (err) {
     console.error('AI error:', err.message);
@@ -124,14 +165,15 @@ io.on('connection', function(socket) {
     var pin = generatePIN();
     var room = {
       pin: pin, hostId: socket.id, quiz: data.quiz,
-      theme: data.theme || 'default', players: new Map(),
-      state: 'lobby', currentQ: -1, timer: null,
+      theme: data.theme || 'default', hostSeeAnswer: data.hostSeeAnswer !== false,
+      players: new Map(), state: 'lobby', currentQ: -1, timer: null,
       answersThisRound: new Set(), questionStartTime: 0
     };
     rooms.set(pin, room);
     socket.join(pin);
     socket.data.role = 'host';
     socket.data.pin = pin;
+    stats.trackGameCreated(pin, data.quiz.title, data.quiz.questions.length, data.theme);
     cb({ pin: pin });
   });
 
@@ -148,6 +190,7 @@ io.on('connection', function(socket) {
     socket.data.pin = pin;
     socket.data.name = name;
     room.players.set(socket.id, { name: name, score: 0, streak: 0 });
+    stats.trackPlayerJoined();
     cb({ ok: true, theme: room.theme, quizTitle: room.quiz.title });
     io.to(room.hostId).emit('host:playerJoined', {
       players: Array.from(room.players.values()).map(function(p) { return { name: p.name, score: p.score }; })
@@ -159,6 +202,7 @@ io.on('connection', function(socket) {
     if (!room || room.hostId !== socket.id) return;
     room.state = 'playing';
     room.currentQ = -1;
+    stats.trackGameStarted(room.pin, room.players.size);
     io.to(room.pin).emit('game:started', { totalQuestions: room.quiz.questions.length });
     nextQuestion(room);
   });
@@ -195,6 +239,68 @@ io.on('connection', function(socket) {
     if (room.currentQ < room.quiz.questions.length - 1) nextQuestion(room);
   });
 
+  socket.on('host:pause', function() {
+    var room = rooms.get(socket.data.pin);
+    if (!room || room.hostId !== socket.id) return;
+    clearTimeout(room.timer);
+    room.pausedAt = Date.now();
+    io.to(room.pin).emit('game:paused');
+  });
+
+  socket.on('host:resume', function() {
+    var room = rooms.get(socket.data.pin);
+    if (!room || room.hostId !== socket.id) return;
+    var q = room.quiz.questions[room.currentQ];
+    var timeLimit = q.timeLimit || 20;
+    var elapsed = (room.pausedAt - room.questionStartTime) / 1000;
+    var remaining = Math.max(1, timeLimit - elapsed);
+    room.questionStartTime = Date.now() - (elapsed * 1000);
+    room.pausedAt = null;
+    io.to(room.pin).emit('game:resumed', { remaining: Math.round(remaining) });
+    room.timer = setTimeout(function() { showResults(room); }, remaining * 1000 + 500);
+  });
+
+  socket.on('host:stop', function() {
+    var room = rooms.get(socket.data.pin);
+    if (!room || room.hostId !== socket.id) return;
+    clearTimeout(room.timer);
+    room.state = 'results';
+    var leaderboard = Array.from(room.players.values())
+      .sort(function(a, b) { return b.score - a.score; })
+      .map(function(p, i) { return { rank: i + 1, name: p.name, score: p.score }; });
+    stats.trackGameCompleted(room.pin, room.players.size);
+    io.to(room.pin).emit('game:finished', { leaderboard: leaderboard });
+  });
+
+  socket.on('host:kick', function(data) {
+    var room = rooms.get(socket.data.pin);
+    if (!room || room.hostId !== socket.id) return;
+    var kickName = data.name;
+    var kickedId = null;
+    room.players.forEach(function(p, sid) {
+      if (p.name === kickName) kickedId = sid;
+    });
+    if (!kickedId) return;
+    stats.trackKick();
+    room.players.delete(kickedId);
+    room.answersThisRound.delete(kickedId);
+    io.to(kickedId).emit('game:ended', { reason: "Tu as ete exclu par l'hote." });
+    var kickedSocket = io.sockets.sockets.get(kickedId);
+    if (kickedSocket) { kickedSocket.leave(room.pin); kickedSocket.data.pin = null; }
+    io.to(room.hostId).emit('host:playerLeft', {
+      name: kickName,
+      players: Array.from(room.players.values()).map(function(p) { return { name: p.name, score: p.score }; })
+    });
+  });
+
+  socket.on('host:quit', function() {
+    var room = rooms.get(socket.data.pin);
+    if (!room || room.hostId !== socket.id) return;
+    clearTimeout(room.timer);
+    io.to(room.pin).emit('game:ended', { reason: "L'hote a quitte la partie." });
+    rooms.delete(room.pin);
+  });
+
   socket.on('disconnect', function() {
     var room = rooms.get(socket.data.pin);
     if (!room) return;
@@ -212,16 +318,24 @@ io.on('connection', function(socket) {
   });
 });
 
+
 function nextQuestion(room) {
   room.currentQ++;
   room.answersThisRound = new Set();
   var q = room.quiz.questions[room.currentQ];
   var timeLimit = q.timeLimit || 20;
   room.questionStartTime = Date.now();
-  io.to(room.pin).emit('game:question', {
+  var questionData = {
     index: room.currentQ, total: room.quiz.questions.length,
     question: q.question, options: q.options, timeLimit: timeLimit
-  });
+  };
+  if (room.hostSeeAnswer) questionData.answer = q.answer;
+  io.to(room.hostId).emit('game:question', questionData);
+  var playerData = {
+    index: room.currentQ, total: room.quiz.questions.length,
+    question: q.question, options: q.options, timeLimit: timeLimit
+  };
+  room.players.forEach(function(p, sid) { io.to(sid).emit('game:question', playerData); });
   room.timer = setTimeout(function() { showResults(room); }, timeLimit * 1000 + 500);
 }
 
@@ -237,11 +351,11 @@ function showResults(room) {
   });
   if (room.currentQ >= room.quiz.questions.length - 1) {
     room.state = 'results';
+    stats.trackGameCompleted(room.pin, room.players.size);
     io.to(room.pin).emit('game:finished', { leaderboard: leaderboard });
   }
 }
 
-var PORT = process.env.PORT || 3000;
 
 var PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', function() {

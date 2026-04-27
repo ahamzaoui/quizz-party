@@ -39,6 +39,11 @@
 
       <label>Temps par question (secondes)</label>
       <input type="number" id="default-time" value="20" min="5" max="120" class="input-small">
+
+      <div class="checkbox-row">
+        <input type="checkbox" id="host-see-answer" checked>
+        <label for="host-see-answer">L'hôte voit la bonne réponse pendant la question</label>
+      </div>
     </div>
 
     <!-- ── AI Generation ── -->
@@ -171,6 +176,19 @@
       <h2 id="game-question"></h2>
       <div id="game-options" class="options-grid host-options"></div>
     </div>
+    <div class="host-controls">
+      <button id="btn-pause" class="btn btn-control btn-pause">⏸ Pause</button>
+      <button id="btn-stop" class="btn btn-control btn-stop">⏹ Terminer</button>
+      <button id="btn-quit" class="btn btn-control btn-quit">🚪 Quitter</button>
+    </div>
+    <div id="pause-overlay" class="pause-overlay" style="display:none">
+      <div class="pause-box">
+        <span class="pause-icon">⏸</span>
+        <h2>Partie en pause</h2>
+        <p>Les joueurs attendent...</p>
+        <button id="btn-resume" class="btn btn-primary btn-large">▶ Reprendre</button>
+      </div>
+    </div>
   </div>
 
   <!-- ═══ STEP 4: Round Results ═══ -->
@@ -178,7 +196,13 @@
     <h2 class="results-title" id="results-title">🏆 Classement</h2>
     <div class="correct-answer" id="correct-answer"></div>
     <div id="leaderboard" class="leaderboard"></div>
-    <button id="btn-next-q" class="btn btn-primary btn-large">Question suivante →</button>
+    <div class="results-actions">
+      <button id="btn-next-q" class="btn btn-primary btn-large">Question suivante →</button>
+      <div class="results-controls">
+        <button id="btn-stop-results" class="btn btn-control btn-stop">⏹ Terminer la partie</button>
+        <button id="btn-quit-results" class="btn btn-control btn-quit">🚪 Quitter</button>
+      </div>
+    </div>
   </div>
 
   <!-- ═══ STEP 5: Final ═══ -->
@@ -191,6 +215,7 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/sounds.js"></script>
+  <script>fetch('/api/track-visit').catch(function(){});</script>
   <script src="/js/host.js"></script>
 </body>
 </html>

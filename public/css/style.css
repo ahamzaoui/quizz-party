@@ -164,6 +164,23 @@ select option { background: var(--bg-card); }
   background: var(--bg-card); padding: 0.8rem; border-radius: 12px;
   text-align: center; font-weight: 600; animation: bounceIn 0.4s;
 }
+.player-card {
+  background: var(--bg-card); padding: 0.8rem 1rem; border-radius: 12px;
+  display: flex; align-items: center; gap: 0.6rem; font-weight: 600;
+  position: relative; animation: bounceIn 0.4s;
+}
+.player-avatar {
+  width: 2.2rem; height: 2.2rem; border-radius: 50%; background: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 1rem; color: white; flex-shrink: 0;
+}
+.btn-kick {
+  position: absolute; top: 4px; right: 6px; background: none; border: none;
+  color: var(--text-muted); font-size: 1.3rem; cursor: pointer; padding: 2px 6px;
+  border-radius: 50%; line-height: 1; opacity: 0; transition: all 0.2s;
+}
+.player-card:hover .btn-kick { opacity: 1; }
+.btn-kick:hover { color: #ff7675; background: rgba(255,118,117,0.15); }
 
 /* ── Game: Host ── */
 .game-header {
@@ -205,6 +222,23 @@ select option { background: var(--bg-card); }
 
 .host-options .option-btn { cursor: default; }
 .host-options .option-btn:hover { filter: none; transform: none; }
+
+.host-option {
+  padding: 1rem 1.2rem; background: var(--bg-card); border-radius: var(--radius);
+  font-size: 1.1rem; font-weight: 600; color: var(--text); transition: all 0.2s;
+}
+.host-option.host-correct {
+  background: rgba(46, 204, 113, 0.2); outline: 3px solid var(--success);
+  outline-offset: -3px;
+}
+
+.checkbox-row {
+  display: flex; align-items: center; gap: 0.6rem; margin-top: 0.8rem;
+}
+.checkbox-row input[type="checkbox"] {
+  width: 1.2rem; height: 1.2rem; accent-color: var(--primary); cursor: pointer;
+}
+.checkbox-row label { cursor: pointer; font-size: 0.95rem; color: var(--text); }
 
 /* ── Timer Bar (player) ── */
 .timer-bar-container {
@@ -275,6 +309,37 @@ select option { background: var(--bg-card); }
 .error-msg { color: var(--danger); font-size: 0.9rem; min-height: 1.5rem; margin-top: 0.5rem; }
 .back-link { display: block; text-align: center; margin-top: 2rem; color: var(--text-muted); }
 .back-link:hover { color: var(--primary-light); }
+
+/* ── Host Controls ── */
+.host-controls {
+  display: flex; gap: 0.8rem; justify-content: center; margin-top: 2rem;
+}
+.btn-control {
+  padding: 0.8rem 1.5rem; border-radius: 12px; font-size: 1rem;
+  font-weight: 600; cursor: pointer; border: 2px solid; transition: all 0.2s;
+}
+.btn-pause { background: rgba(253,203,110,0.25); color: #fdcb6e; border-color: #fdcb6e; }
+.btn-pause:hover { background: rgba(253,203,110,0.45); }
+.btn-stop { background: rgba(225,112,85,0.25); color: #ff7675; border-color: #ff7675; }
+.btn-stop:hover { background: rgba(225,112,85,0.45); }
+.btn-quit { background: rgba(180,180,200,0.2); color: #dfe6e9; border-color: #b2bec3; }
+.btn-quit:hover { background: rgba(180,180,200,0.4); }
+
+.pause-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+}
+.pause-box {
+  background: var(--bg-card); border-radius: var(--radius); padding: 3rem;
+  text-align: center; max-width: 400px; animation: bounceIn 0.4s;
+}
+.pause-icon { font-size: 4rem; display: block; margin-bottom: 1rem; }
+.pause-box h2 { margin-bottom: 0.5rem; }
+.pause-box p { color: var(--text-muted); margin-bottom: 1.5rem; }
+
+.results-actions { margin-top: 1.5rem; text-align: center; }
+.results-controls { display: flex; gap: 0.8rem; justify-content: center; margin-top: 1.2rem; flex-wrap: wrap; }
+.results-controls .btn-control { font-size: 1rem; padding: 0.8rem 1.5rem; }
 
 /* ── Footer ── */
 .home-footer { text-align: center; color: var(--text-muted); font-size: 0.85rem; }
