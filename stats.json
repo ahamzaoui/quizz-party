@@ -1,36 +1,58 @@
 {
-  "totalVisits": 3,
-  "totalGamesCreated": 1,
-  "totalGamesCompleted": 1,
-  "totalPlayersJoined": 1,
-  "totalQuestionsGenerated": 20,
-  "totalAIGenerations": 2,
+  "totalVisits": 5,
+  "totalGamesCreated": 2,
+  "totalGamesCompleted": 2,
+  "totalPlayersJoined": 2,
+  "totalQuestionsGenerated": 30,
+  "totalAIGenerations": 3,
   "totalKicks": 0,
   "themes": {
-    "Sciences et nature": 1
+    "Sciences et nature": 1,
+    "Afrique du nord": 1
   },
   "aiThemes": {
     "Sciences et nature": 1,
-    "Gabes en Tunisie": 1
+    "Gabes en Tunisie": 1,
+    "Afrique du nord": 1
   },
   "models": {
-    "google/gemma-4-31b-it": 2
+    "google/gemma-4-31b-it": 2,
+    "openai/gpt-oss-120b": 1
   },
   "languages": {
-    "francais": 2
+    "francais": 3
   },
   "difficulties": {
-    "moyen": 2
+    "moyen": 3
   },
   "dailyVisits": {
-    "2026-04-27": 3
+    "2026-04-27": 5
   },
   "dailyGames": {
-    "2026-04-27": 1
+    "2026-04-27": 2
   },
   "peakPlayers": 1,
   "averagePlayersPerGame": 1,
   "gamesPlayerCount": [
+    1,
     1
+  ],
+  "quizHistory": [
+    {
+      "pin": "6695",
+      "title": "Afrique du nord",
+      "questions": 10,
+      "theme": "default",
+      "createdAt": "2026-04-27T13:39:42.894Z"
+    }
+  ],
+  "gameHistory": [
+    {
+      "pin": "6695",
+      "players": 1,
+      "startedAt": "2026-04-27T13:39:57.935Z",
+      "endedAt": "2026-04-27T13:40:34.727Z",
+      "status": "terminee"
+    }
   ]
 }

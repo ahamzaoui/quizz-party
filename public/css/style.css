@@ -342,7 +342,20 @@ select option { background: var(--bg-card); }
 .results-controls .btn-control { font-size: 1rem; padding: 0.8rem 1.5rem; }
 
 /* ── Footer ── */
-.home-footer { text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+.home-footer { text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-top: 2rem; }
+
+.use-cases { margin-top: 2.5rem; text-align: center; }
+.use-cases h2 { font-size: 1.4rem; margin-bottom: 0.6rem; }
+.use-cases > p { color: var(--text-muted); font-size: 0.95rem; max-width: 600px; margin: 0 auto 1.5rem; line-height: 1.5; }
+.use-case-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+.use-case-card {
+  background: var(--bg-card); border-radius: var(--radius); padding: 1.3rem;
+  text-align: center; transition: transform 0.2s, background 0.2s;
+}
+.use-case-card:hover { transform: translateY(-3px); background: var(--bg-card-hover); }
+.use-case-icon { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+.use-case-card h3 { font-size: 1rem; margin-bottom: 0.4rem; }
+.use-case-card p { color: var(--text-muted); font-size: 0.82rem; line-height: 1.4; }
 
 /* ── AI Section ── */
 .ai-section {
