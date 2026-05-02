@@ -1,41 +1,63 @@
 {
-  "totalVisits": 10,
-  "totalGamesCreated": 3,
-  "totalGamesCompleted": 3,
-  "totalPlayersJoined": 3,
-  "totalQuestionsGenerated": 40,
-  "totalAIGenerations": 4,
+  "totalVisits": 41,
+  "totalGamesCreated": 5,
+  "totalGamesCompleted": 5,
+  "totalPlayersJoined": 5,
+  "totalQuestionsGenerated": 293,
+  "totalAIGenerations": 30,
   "totalKicks": 0,
   "themes": {
     "Sciences et nature": 1,
     "Afrique du nord": 1,
-    "Gabes, Tunisie": 1
+    "Gabes, Tunisie": 1,
+    "espérance de Tunis": 2
   },
   "aiThemes": {
     "Sciences et nature": 1,
     "Gabes en Tunisie": 1,
     "Afrique du nord": 1,
-    "Gabes, Tunisie": 1
+    "Gabes, Tunisie": 1,
+    "Espérance de Tunis": 9,
+    "esperance de tunis": 1,
+    "espérance de tunis": 5,
+    "espérance de Tunis": 11
   },
   "models": {
     "google/gemma-4-31b-it": 2,
-    "openai/gpt-oss-120b": 2
+    "openai/gpt-oss-120b": 7,
+    "@cf/meta/llama-3.1-8b-instruct": 1,
+    "@cf/meta/llama-3.3-70b-instruct-fp8-fast": 1,
+    "@cf/qwen/qwen2.5-coder-32b-instruct": 2,
+    "meta-llama/llama-4-scout-17b-16e-instruct": 1,
+    "@cf/qwen/qwen3-30b-a3b-fp8": 1,
+    "@cf/moonshotai/kimi-k2.6": 1,
+    "gemini-2.5-flash": 8,
+    "gemini-3-flash-preview": 5,
+    "gemini-3.1-flash-lite-preview": 1
   },
   "languages": {
-    "francais": 4
+    "francais": 29,
+    "arabe": 1
   },
   "difficulties": {
-    "moyen": 4
+    "moyen": 27,
+    "expert": 3
   },
   "dailyVisits": {
-    "2026-04-27": 10
+    "2026-04-27": 10,
+    "2026-04-30": 10,
+    "2026-05-01": 4,
+    "2026-05-02": 17
   },
   "dailyGames": {
-    "2026-04-27": 3
+    "2026-04-27": 3,
+    "2026-05-02": 2
   },
   "peakPlayers": 1,
   "averagePlayersPerGame": 1,
   "gamesPlayerCount": [
+    1,
+    1,
     1,
     1,
     1
@@ -54,6 +76,20 @@
       "questions": 10,
       "theme": "default",
       "createdAt": "2026-04-27T22:34:14.066Z"
+    },
+    {
+      "pin": "8748",
+      "title": "espérance de Tunis",
+      "questions": 10,
+      "theme": "default",
+      "createdAt": "2026-05-02T19:19:12.698Z"
+    },
+    {
+      "pin": "5172",
+      "title": "espérance de Tunis",
+      "questions": 10,
+      "theme": "default",
+      "createdAt": "2026-05-02T19:25:25.797Z"
     }
   ],
   "gameHistory": [
@@ -69,6 +105,20 @@
       "players": 1,
       "startedAt": "2026-04-27T22:34:33.435Z",
       "endedAt": "2026-04-27T22:40:46.086Z",
+      "status": "terminee"
+    },
+    {
+      "pin": "8748",
+      "players": 1,
+      "startedAt": "2026-05-02T19:19:31.585Z",
+      "endedAt": "2026-05-02T19:20:24.316Z",
+      "status": "terminee"
+    },
+    {
+      "pin": "5172",
+      "players": 1,
+      "startedAt": "2026-05-02T19:25:55.719Z",
+      "endedAt": "2026-05-02T19:26:55.974Z",
       "status": "terminee"
     }
   ]

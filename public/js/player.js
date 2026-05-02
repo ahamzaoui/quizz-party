@@ -1,6 +1,23 @@
 var socket = io();
 var myScore = 0;
 var timerBarInterval = null;
+var mp3Enabled = true;
+var correctMp3s = ['/sounds/correct-1.mp3', '/sounds/correct-2.mp3'];
+var wrongMp3s = ['/sounds/wrong-1.mp3', '/sounds/wrong-2.mp3', '/sounds/wrong-3.mp3'];
+
+function playMp3(bank) {
+  if (!mp3Enabled) return;
+  try {
+    var src = bank[Math.floor(Math.random() * bank.length)];
+    var audio = new Audio(src);
+    audio.volume = 0.8;
+    audio.play().catch(function() {});
+  } catch(e) {}
+}
+
+socket.on('sound:toggle', function(data) {
+  mp3Enabled = data.enabled;
+});
 
 var $ = function(sel) { return document.querySelector(sel); };
 var $$ = function(sel) { return document.querySelectorAll(sel); };
@@ -69,7 +86,7 @@ socket.on('player:result', function(data) {
   $('#feedback-text').textContent = data.correct ? 'Bonne réponse !' : 'Mauvaise réponse...';
   $('#feedback-score').textContent = 'Score : ' + data.score.toLocaleString() + ' pts';
   $('#feedback-streak').textContent = data.streak > 1 ? '🔥 Série de ' + data.streak + ' !' : '';
-  if (data.correct) SoundFX.correct(); else SoundFX.wrong();
+  if (data.correct) playMp3(correctMp3s); else playMp3(wrongMp3s);
 });
 
 // ═══ PAUSE / RESUME ═══

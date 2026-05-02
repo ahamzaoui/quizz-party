@@ -5,6 +5,7 @@ var timerInterval = null;
 var stopTension = null;
 var hostSeeAnswer = true;
 var userApiKey = '';
+var userCfAccount = '';
 
 var $ = function(sel) { return document.querySelector(sel); };
 var $$ = function(sel) { return document.querySelectorAll(sel); };
@@ -19,13 +20,65 @@ $$('.theme-btn').forEach(function(btn) {
   });
 });
 
+var modelsData = {};
+var providerLabels = { openrouter: 'OpenRouter', cloudflare: 'Cloudflare Workers AI', gemini: 'Google Gemini' };
+var providerPlaceholders = { openrouter: 'Cle API OpenRouter (sk-or-...)', cloudflare: 'Cloudflare API Token', gemini: 'Cle API Google Gemini (AIza...)' };
+
+function populateModelSelect(selectId, provider) {
+  var sel = $(selectId);
+  sel.innerHTML = '';
+  var models = modelsData[provider] || [];
+  models.forEach(function(m) {
+    var opt = document.createElement('option');
+    opt.value = m.id;
+    opt.textContent = m.name;
+    sel.appendChild(opt);
+  });
+}
+
+function populateProviders() {
+  var sel = $('#ai-provider');
+  sel.innerHTML = '';
+  var providers = Object.keys(modelsData).filter(function(p) { return modelsData[p] && modelsData[p].length > 0; });
+  providers.forEach(function(p) {
+    var opt = document.createElement('option');
+    opt.value = p;
+    opt.textContent = providerLabels[p] || p;
+    sel.appendChild(opt);
+  });
+  if (providers.length > 0) switchProvider(providers[0]);
+}
+
+function switchProvider(provider) {
+  populateModelSelect('#ai-model', provider);
+  populateModelSelect('#ai-validator', provider);
+  $('#ai-cf-account-row').style.display = provider === 'cloudflare' ? '' : 'none';
+  $('#ai-key').placeholder = providerPlaceholders[provider] || 'Cle API';
+}
+
+(async function loadModels() {
+  try {
+    var res = await fetch('/api/models');
+    modelsData = await res.json();
+    populateProviders();
+  } catch(e) { console.error('Erreur chargement modeles:', e); }
+})();
+
+$('#ai-provider').addEventListener('change', function() {
+  switchProvider($('#ai-provider').value);
+});
+
+$('#ai-validate').addEventListener('change', function() {
+  $('#validator-row').style.display = $('#ai-validate').checked ? '' : 'none';
+});
+
 (async function() {
   try {
     var res = await fetch('/api/has-key');
     var d = await res.json();
     if (d.hasKey) {
       $('#ai-key-row').style.display = 'none';
-      $('#ai-key-status').textContent = 'Cle API configuree';
+      $('#ai-key-status').textContent = 'Cle API configuree (serveur)';
     }
   } catch(e) {}
 })();
@@ -34,10 +87,17 @@ $('#btn-save-key').addEventListener('click', function() {
   var key = $('#ai-key').value.trim();
   if (!key) return;
   userApiKey = key;
+  var provider = $('#ai-provider').value;
+  if (provider === 'cloudflare') {
+    var acct = $('#ai-cf-account').value.trim();
+    if (!acct) { $('#ai-key-status').textContent = 'Account ID requis pour Cloudflare'; $('#ai-key-status').className = 'ai-key-status error'; return; }
+    userCfAccount = acct;
+  }
   $('#ai-key-status').textContent = 'Cle enregistree pour cette session';
   $('#ai-key-status').className = 'ai-key-status';
   $('#ai-key').value = '';
   $('#ai-key-row').style.display = 'none';
+  $('#ai-cf-account-row').style.display = 'none';
 });
 
 $('#ai-theme-preset').addEventListener('change', function() {
@@ -59,7 +119,7 @@ $('#btn-ai-generate').addEventListener('click', async function() {
   try {
     var res = await fetch('/api/generate-questions', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ theme: theme, count: parseInt($('#ai-count').value), difficulty: $('#ai-difficulty').value, model: $('#ai-model').value, language: $('#ai-language').value, userKey: userApiKey || undefined })
+      body: JSON.stringify({ theme: theme, count: parseInt($('#ai-count').value), difficulty: $('#ai-difficulty').value, model: $('#ai-model').value, language: $('#ai-language').value, provider: $('#ai-provider').value, userKey: userApiKey || undefined, cfAccount: userCfAccount || undefined, validate: $('#ai-validate').checked, validatorModel: $('#ai-validate').checked ? $('#ai-validator').value : undefined })
     });
     var data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Erreur serveur');
@@ -147,6 +207,13 @@ function renderPlayers(players, animate) {
 socket.on('host:playerJoined', function(data) { SoundFX.join(); renderPlayers(data.players, true); });
 socket.on('host:playerLeft', function(data) { renderPlayers(data.players, false); });
 $('#btn-start-game').addEventListener('click', function() { socket.emit('host:start'); });
+
+var playerSoundsOn = true;
+$('#btn-toggle-mp3').addEventListener('click', function() {
+  playerSoundsOn = !playerSoundsOn;
+  socket.emit('host:toggleSound', { enabled: playerSoundsOn });
+  $('#btn-toggle-mp3').textContent = playerSoundsOn ? '🔊 Sons joueurs' : '🔇 Sons joueurs';
+});
 
 socket.on('game:started', function() { SoundFX.whoosh(); });
 

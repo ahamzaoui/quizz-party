@@ -49,9 +49,16 @@
     <!-- ── AI Generation ── -->
     <div class="ai-section">
       <h2>🤖 Générer avec l'IA</h2>
+      <div class="ai-provider-row">
+        <label>Fournisseur IA</label>
+        <select id="ai-provider" class="input-full"></select>
+      </div>
       <div class="ai-key-row" id="ai-key-row">
         <input type="password" id="ai-key" placeholder="Clé API OpenRouter (sk-or-...)" class="input-full">
         <button id="btn-save-key" class="btn btn-secondary">Enregistrer</button>
+      </div>
+      <div class="ai-key-row" id="ai-cf-account-row" style="display:none">
+        <input type="text" id="ai-cf-account" placeholder="Cloudflare Account ID" class="input-full">
       </div>
       <p class="ai-key-status" id="ai-key-status"></p>
       <div class="ai-gen-row">
@@ -80,11 +87,20 @@
         </div>
         <div class="ai-options-row">
           <div>
-            <label>Modèle IA</label>
-            <select id="ai-model" class="input-full">
-              <option value="google/gemma-4-31b-it">Gemma 4 31B (rapide)</option>
-              <option value="openai/gpt-oss-120b">GPT OSS 120B (puissant)</option>
-            </select>
+            <label>Modèle générateur</label>
+            <select id="ai-model" class="input-full"></select>
+          </div>
+        </div>
+        <div class="ai-options-row">
+          <div class="checkbox-row">
+            <input type="checkbox" id="ai-validate" checked>
+            <label for="ai-validate">🛡️ Validation par un 2e modèle IA (plus fiable, plus lent)</label>
+          </div>
+        </div>
+        <div class="ai-options-row" id="validator-row">
+          <div>
+            <label>Modèle validateur</label>
+            <select id="ai-validator" class="input-full"></select>
           </div>
         </div>
         <div class="ai-options-row">
@@ -121,7 +137,7 @@
         <button id="btn-ai-generate" class="btn btn-ai btn-large">
           <span class="ai-btn-text">✨ Générer les questions</span>
           <span class="ai-btn-loading" style="display:none">
-            <span class="spinner"></span> Génération en cours...
+            <span class="spinner"></span> <span id="ai-loading-text">Génération en cours...</span>
           </span>
         </button>
       </div>
@@ -177,6 +193,7 @@
       <div id="game-options" class="options-grid host-options"></div>
     </div>
     <div class="host-controls">
+      <button id="btn-toggle-mp3" class="btn btn-control btn-sound">🔊 Sons joueurs</button>
       <button id="btn-pause" class="btn btn-control btn-pause">⏸ Pause</button>
       <button id="btn-stop" class="btn btn-control btn-stop">⏹ Terminer</button>
       <button id="btn-quit" class="btn btn-control btn-quit">🚪 Quitter</button>
